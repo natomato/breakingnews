@@ -1,3 +1,5 @@
+require 'open-uri'
+
 Given /^I am not yet viewing the breakingnews page$/ do
 end
 
@@ -6,6 +8,8 @@ When /^I navigate to the site$/ do
 end
 
 Then /^I should see (\d+) headlines from "([^"]*)"$/ do |num, domain|
+  source = Nokogiri::HTML(open('http://' + domain))
+  # latest_headline should appear on root_url page
 end
 
 Then /^I should see the first paragraph of the story$/ do

@@ -9,7 +9,7 @@ gem 'uglifier', '>= 1.3.0'
 gem 'coffee-rails', '~> 4.0.0'
 gem 'jquery-rails'
 gem 'turbolinks'
-
+gem 'nokogiri'
 
 group :development do
   gem 'pg'
@@ -22,6 +22,9 @@ group :test do
   gem 'cucumber-rails', require: false
   gem 'database_cleaner'
   gem 'pg'
+  gem 'pry'
+  gem 'pry-debugger'
+  gem 'better_errors'
 end
 
 gem 'rspec-rails', group: [:development, :rails]

@@ -1,0 +1,10 @@
+<h1>Stories#index</h1>
+<p>Find me in app/views/stories/index.html.erb</p>
+<ul class="stories">
+  <% @stories.each do |story| %>
+    <li class="story"><%= story.headline %>
+      <p><%= story.lead_paragraph %></p>
+      <p class="source"><%= story.website %></p>
+    </li>
+  <% end %>
+</ul>
