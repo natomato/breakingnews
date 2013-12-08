@@ -1,36 +1,34 @@
 require 'open-uri'
-# require 'addressable/uri'
+require 'debugger'
 
 class Story < ActiveRecord::Base
-  # scope :latest ->
-  validates :website, uniqueness: true
+  validates :website, uniqueness: true 
 
   def self.update
     url = 'http://www.cnn.com'
-    headlines = get_headlines(url) 
-    # latest = (headlines)
+    # get_headlines
+    headlines = latest_headlines(url) #[0...10]
+
+    stories = []
     headlines.each do |link|
-      website = create_website(link["href"])
-      headline = link.text
-      paragraph = get_lead_paragraph(website)
-      s = Story.new(website: website, headline: headline, lead_paragraph: paragraph)
-      s.save
+      s = Story.new()
+      s.website = extract_website(link["href"])
+      s.host = URI.parse(s.website).host
+      s.headline = link.text
+      stories << s
     end
-    Story.all
+
+    # remove_duplicates, get_paragraphs, save_bundle
+    # if its a video just skip it
+    stories.map do |s|
+      if s.valid?
+        s.lead_paragraph = s.get_lead_paragraph(s.website)
+        s.save
+      end
+    end
   end
 
-  # def self.get_website(link)
-  #   url = Addressable::URI.new(
-  #     :scheme => "http",
-  #     :host => "maps.googleapis.com",
-  #     :path => "/maps/api/geocode/json",
-  #     :query_values => {
-  #       :address => address,
-  #       :sensor => "false"
-  #     }).to_s
-  # end
-
-  def self.create_website(href)
+  def self.extract_website(href)
     if href[0..3] == "http"
       href
     else
@@ -38,29 +36,68 @@ class Story < ActiveRecord::Base
     end
   end
 
-  def self.get_headlines(url)
+  def self.latest_headlines(url)
     doc = Nokogiri::HTML(open(url))
     doc.css('#cnn_maintt2bul .cnnPreWOOL+ a')
   end
 
-  # TODO later 
-  def self.remove_duplicates(headlines)
-
-  end
-
-  def self.get_lead_paragraph(link)
+  def get_lead_paragraph(link)
     doc = Nokogiri::HTML(open(link))
-    doc.xpath('//p[1]').children.text
+    host = URI.parse(link).host
+    url_parts = link.split('/')
+
+    # matcher = get_custom_matcher(link)
+    if url_parts[3] == 'video'
+      candidate = doc.xpath("//meta[@name='description']/@content").text
+      candidate += "Follow link to watch the full video"
+      supplement = ""
+    end
+    if url_parts[2] == 'eatocracy.cnn.com'
+      candidate  = doc.css('p')[0].text 
+      supplement = doc.css('p')[1].text
+    end
+    if url_parts[2] == 'politicalticker.blogs.cnn.com'
+      candidate  = doc.css('p')[0].text 
+      supplement = doc.css('p')[1].text
+    end
+    if url_parts[2] == 'www.hlntv.com'
+      candidate  = doc.css('p')[0].text 
+      supplement = doc.css('p')[1].text
+    end
+    if url_parts[2] == 'bleacherreport.com'
+      candidate  = doc.css('#article-body p')[0].text
+      supplement = doc.css('#article-body p')[1].text
+    end
+    if url_parts[2] == 'reliablesources.blogs.cnn.com'
+      candidate  = doc.css('p')[0].text 
+      supplement = doc.css('p')[1].text
+    end
+    if candidate.nil?
+      candidate  = doc.css('p')[0].text 
+      supplement = doc.css('p')[1].text
+    end
+
+    if candidate.length < 50
+      candidate = "#{candidate} \n #{supplement}"
+      logger.debug "...............candidate: #{candidate}"
+      logger.debug "\n ..............supplement: #{supplement}"
+    end
+
+    candidate
   end
 
-  def self.latest
-    Story.order('created_at DESC').limit(5)
-    # where("created_at >= ?", Time.zone.now.beginning_of_day).limit(5)
+  def self.latest(n)
+    Story.update
+    Story.order('created_at ASC').limit(n)
   end
 
-  private
+  def self.new_story?
+    # custom validator
 
-  def one_day_apart?(other)
-    (self.created_at.to_date - other.created_at.to_date).abs == 1
   end
+  # private
+
+  # def one_day_apart?(other)
+  #   (self.created_at.to_date - other.created_at.to_date).abs == 1
+  # end
 end

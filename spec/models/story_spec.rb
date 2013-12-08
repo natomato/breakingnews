@@ -10,11 +10,17 @@ describe Story do
       expect(story.created_at).not_to be_blank
     end
 
+    it 'only updates at most 10 stories at a time' do
+      last_count = Story.count
+      Story.update
+      expect(Story.count).to be < (last_count + 11)
+    end
+    
     it 'will not save duplicate stories' do
-      story = new Story(website: "http://story1")
-      copy  = new Story(website: "http://story1")
+      story = Story.new(website: "http://story1")
+      copy  = Story.new(website: "http://story1")
       story.save
-      expect(copy.save).not_to be_valid
+      expect(copy).not_to be_valid
     end
   end
 end

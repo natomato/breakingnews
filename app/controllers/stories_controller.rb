@@ -1,6 +1,5 @@
 class StoriesController < ApplicationController
   def index
-    Story.update
-    @stories = Story.latest
+    @stories = Story.latest(5)
   end
 end

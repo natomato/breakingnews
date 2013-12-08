@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131206175448) do
+ActiveRecord::Schema.define(version: 20131207232929) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -22,6 +22,9 @@ ActiveRecord::Schema.define(version: 20131206175448) do
     t.text     "lead_paragraph"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "host"
   end
+
+  add_index "stories", ["host"], name: "index_stories_on_host", using: :btree
 
 end
