@@ -1,12 +1,10 @@
 require 'open-uri'
-require 'debugger'
 
 class Story < ActiveRecord::Base
   validates :website, uniqueness: true 
 
   def self.update
     url = 'http://www.cnn.com'
-    # get_headlines
     headlines = latest_headlines(url) #[0...10]
 
     stories = []
@@ -18,8 +16,6 @@ class Story < ActiveRecord::Base
       stories << s
     end
 
-    # remove_duplicates, get_paragraphs, save_bundle
-    # if its a video just skip it
     stories.map do |s|
       if s.valid?
         s.lead_paragraph = s.get_lead_paragraph(s.website)
@@ -46,7 +42,6 @@ class Story < ActiveRecord::Base
     host = URI.parse(link).host
     url_parts = link.split('/')
 
-    # matcher = get_custom_matcher(link)
     if url_parts[3] == 'video'
       candidate = doc.xpath("//meta[@name='description']/@content").text
       candidate += "Follow link to watch the full video"
@@ -90,14 +85,4 @@ class Story < ActiveRecord::Base
     Story.update
     Story.order('created_at ASC').limit(n)
   end
-
-  def self.new_story?
-    # custom validator
-
-  end
-  # private
-
-  # def one_day_apart?(other)
-  #   (self.created_at.to_date - other.created_at.to_date).abs == 1
-  # end
 end
