@@ -29,3 +29,7 @@ gem 'rspec-rails', group: [:development, :rails]
 group :production do
   gem 'pg'
 end
+
+# At the request of Heroku
+# https://devcenter.heroku.com/articles/ruby-support#rails-4-x-applications
+gem 'rails_12factor'
