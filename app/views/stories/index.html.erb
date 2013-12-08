@@ -3,11 +3,11 @@
 <article>
   <div class="panel panel-default panel-primary">
     <div class="panel-heading">
-      <h1 class="panel-title"> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Magnam, sed! <%#= story.headline %></h1>
+      <h1 class="panel-title"><%= story.headline %></h1>
     </div>
     <div class="panel-body">
-      <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut, ipsum, omnis voluptas voluptates praesentium unde placeat culpa veniam cumque quod assumenda laborum laboriosam repudiandae ab. <%#= story.lead_paragraph %></p>
-      <p class="source"><a href="<%= story.website %>"> test.com <%#= story.host %></a></p>
+      <p><%= story.lead_paragraph %></p>
+      <p class="source"><a href="<%= story.website %>"><%= story.host %></a></p>
     </div>
   </div>
 </article>
