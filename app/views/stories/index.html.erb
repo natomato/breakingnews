@@ -1,14 +1,14 @@
-<h1>Breaking News</h1>
+<h1 class="title">Breaking News</h1>
 <% @stories.each do |story| %>
 <article>
   <div class="panel panel-default panel-primary">
     <div class="panel-heading">
-      <h1 class="panel-title">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Libero, sapiente!</h1>
+      <h1 class="panel-title"><%= story.headline %></h1>
     </div>
     <div class="panel-body">
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Doloremque, veniam, nam porro deserunt nobis fugit perferendis temporibus dolorum non eius quam deleniti adipisci molestiae soluta consequuntur totam mollitia! Voluptatem, inventore ab autem id dolor recusandae eveniet sequi excepturi tempora. Fugiat, adipisci eum eius quidem iure amet beatae nisi suscipit distinctio cum voluptas aliquam animi nulla hic cumque officia natus. Atque, eligendi, dignissimos, laudantium quia consequuntur veniam quae reprehenderit accusantium voluptate illo officiis natus et id.<%# story.lead_paragraph %></p>
+      <p><%= story.lead_paragraph %></p>
+      <p class="source"><a href="<%= story.website %>"><%= story.host %></a></p>
     </div>
-    <p class="source"><a href="<%= story.website %>">www.cnn.com<%# story.host %></a></p>
   </div>
 </article>
 <% end %>
