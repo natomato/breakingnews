@@ -3,9 +3,14 @@ require 'open-uri'
 class Story < ActiveRecord::Base
   validates :website, uniqueness: true 
 
+  def self.latest(n)
+    Story.update
+    Story.order('created_at ASC').limit(n)
+  end
+
   def self.update
     url = 'http://www.cnn.com'
-    headlines = latest_headlines(url) #[0...10]
+    headlines = latest_headlines(url)[0...10]
 
     stories = []
     headlines.each do |link|
@@ -24,65 +29,59 @@ class Story < ActiveRecord::Base
     end
   end
 
-  def self.extract_website(href)
-    if href[0..3] == "http"
-      href
-    else
-      'http://www.cnn.com' + href
-    end
-  end
-
   def self.latest_headlines(url)
     doc = Nokogiri::HTML(open(url))
     doc.css('#cnn_maintt2bul .cnnPreWOOL+ a')
   end
 
+  def self.extract_website(href)
+    if href[0..5] =~ /http/
+      website = href.strip
+    else
+      website = 'http://www.cnn.com' + href
+    end
+  end
+
   def get_lead_paragraph(link)
     doc = Nokogiri::HTML(open(link))
-    host = URI.parse(link).host
-    url_parts = link.split('/')
+    candidates = []
 
-    if url_parts[3] == 'video'
-      candidate = doc.xpath("//meta[@name='description']/@content").text
-      candidate += "Follow link to watch the full video"
-      supplement = ""
-    end
-    if url_parts[2] == 'eatocracy.cnn.com'
-      candidate  = doc.css('p')[0].text 
-      supplement = doc.css('p')[1].text
-    end
-    if url_parts[2] == 'politicalticker.blogs.cnn.com'
-      candidate  = doc.css('p')[0].text 
-      supplement = doc.css('p')[1].text
-    end
-    if url_parts[2] == 'www.hlntv.com'
-      candidate  = doc.css('p')[0].text 
-      supplement = doc.css('p')[1].text
-    end
-    if url_parts[2] == 'bleacherreport.com'
-      candidate  = doc.css('#article-body p')[0].text
-      supplement = doc.css('#article-body p')[1].text
-    end
-    if url_parts[2] == 'reliablesources.blogs.cnn.com'
-      candidate  = doc.css('p')[0].text 
-      supplement = doc.css('p')[1].text
-    end
-    if candidate.nil?
-      candidate  = doc.css('p')[0].text 
-      supplement = doc.css('p')[1].text
+    matchers = [ 'p',
+                 '#article-body p',
+                 '#slide-content p',
+               ]
+    
+    matchers.each do |matcher, url_parts|
+      next if doc.css(matcher).empty?
+      paragraph = doc.css(matcher)[0].text
+
+      if link.split('/')[3] == "video"
+        paragraph.concat( "\nFollow link to watch the full video" )
+      end
+
+      candidates << paragraph
     end
 
-    if candidate.length < 50
-      candidate = "#{candidate} \n #{supplement}"
-      logger.debug "...............candidate: #{candidate}"
-      logger.debug "\n ..............supplement: #{supplement}"
-    end
+    pick_best_paragraph(candidates)
 
-    candidate
   end
 
-  def self.latest(n)
-    Story.update
-    Story.order('created_at ASC').limit(n)
+  private #--------------------------------------------------------------------
+
+  def pick_best_paragraph(candidates)
+    
+    error_message = "Sorry, there was a problem fetching this story. Please follow the link for the full story"
+    
+    paragraph = candidates.find { |p| p.size > 70 } || error_message
+    
+    if paragraph.size > 500
+      paragraph = paragraph[0..500]
+      last_period = paragraph.rindex(/\./)
+      paragraph[0..last_period]
+    end 
+
+    paragraph
   end
+
+
 end

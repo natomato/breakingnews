@@ -1,4 +1,4 @@
 Breakingnews::Application.routes.draw do
-  root to: "stories#static"
+  root to: "stories#index"
   resources "stories", only: [:index]
 end
