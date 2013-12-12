@@ -10,6 +10,10 @@ url = 'http://www.cnn.com'
 doc = Nokogiri::HTML(open(url))
 news = doc.css('#cnn_maintt2bul .cnnPreWOOL+ a')
 
+# doc.xpath('//li[starts-with(@class, "c_hpbullet")]').each do |el|
+#   p [el.attributes['class'].value, el.children[0].text]
+# end
+
 def get_lead_paragraph(link)
   doc = Nokogiri::HTML(open(link))
   candidates = []
@@ -24,7 +28,7 @@ def get_lead_paragraph(link)
     paragraph = doc.css(matcher)[0].text
 
     if link.split('/')[3] == "video"
-      paragraph.concat( "\nFollow link to watch the full video" )
+      paragraph.concat( " Follow link to watch the full video" )
     end
 
     candidates << paragraph
@@ -62,7 +66,7 @@ news.each_with_index do |link, index|
 
   paragraph = get_lead_paragraph(website)
   puts "Paragraph: " + paragraph.length.to_s 
-  # binding.pry
+  binding.pry
   stories[index] = News_Story.new(website, link.text, paragraph)
 end
 
