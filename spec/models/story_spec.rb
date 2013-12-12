@@ -3,17 +3,17 @@ require 'spec_helper'
 describe Story do
   
 
-  describe 'fetch_headlines' do
-    let(:path) { File.join(File.dirname(__FILE__), 'CNN_Snapshot.html')}
-    let(:doc) { File.open( path, 'r')}
-    let(:website) { Nokogiri::HTML(open(doc)) }
+  # describe 'fetch_headlines' do
+  #   let(:path) { File.join(File.dirname(__FILE__), 'CNN_Snapshot.html')}
+  #   let(:doc) { File.open( path, 'r')}
+  #   let(:website) { Nokogiri::HTML(open(doc)) }
 
-    it 'grabs the first headline' do
-      headline = website.css('#cnn_maintt2bul .cnnPreWOOL+ a')[0]
-      expect(headline.text).to eq("NASA: Space station pump fails")
-    end
+  #   it 'grabs the first headline' do
+  #     headline = website.css('#cnn_maintt2bul .cnnPreWOOL+ a')[0]
+  #     expect(headline.text).to eq("NASA: Space station pump fails")
+  #   end
 
-  end
+  # end
 
   describe 'update' do
 
