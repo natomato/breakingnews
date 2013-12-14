@@ -76,7 +76,7 @@ class Story < ActiveRecord::Base
   private #--------------------------------------------------------------------
 
   def pick_best_paragraph(candidates)
-    
+
     error_message = "Sorry, there was a problem fetching this story. Please follow the link for the full story"
     
     paragraph = candidates.find { |p| p.size > 70 } || error_message
